@@ -58,6 +58,20 @@ if(SFML_OS_WINDOWS)
         ${SRCROOT}/Win32/ThreadLocalImpl.hpp
     )
     source_group("windows" FILES ${PLATFORM_SRC})
+elseif(SFML_OS_HAIKU)
+    set(PLATFORM_SRC
+        ${SRCROOT}/Haiku/ClockImpl.cpp
+        ${SRCROOT}/Haiku/ClockImpl.hpp
+        ${SRCROOT}/Haiku/MutexImpl.cpp
+        ${SRCROOT}/Haiku/MutexImpl.hpp
+        ${SRCROOT}/Haiku/SleepImpl.cpp
+        ${SRCROOT}/Haiku/SleepImpl.hpp
+        ${SRCROOT}/Haiku/ThreadImpl.cpp
+        ${SRCROOT}/Haiku/ThreadImpl.hpp
+        ${SRCROOT}/Haiku/ThreadLocalImpl.cpp
+        ${SRCROOT}/Haiku/ThreadLocalImpl.hpp
+    )
+    source_group("haiku" FILES ${PLATFORM_SRC})
 else()
     set(PLATFORM_SRC
         ${SRCROOT}/Unix/ClockImpl.cpp
@@ -94,6 +108,11 @@ if(SFML_OS_ANDROID)
     target_include_directories(sfml-system PRIVATE "${PROJECT_SOURCE_DIR}/extlibs/headers/glad/include")
 endif()
 
+#if (SFML_OS_HAIKU)
+#    # weird include for Haiku's "recursive_lock"
+#    target_include_directories(sfml-system PRIVATE "/boot/system/develop/headers/private")
+#endif()
+
 # setup dependencies
 if(SFML_OS_LINUX OR SFML_OS_FREEBSD OR SFML_OS_MACOSX)
     target_link_libraries(sfml-system PRIVATE pthread)
@@ -104,4 +123,6 @@ elseif(SFML_OS_WINDOWS)
     target_link_libraries(sfml-system PRIVATE winmm)
 elseif(SFML_OS_ANDROID)
     target_link_libraries(sfml-system PRIVATE android log)
+elseif(SFML_OS_HAIKU)
+    target_link_libraries(sfml-system PRIVATE root network)
 endif()

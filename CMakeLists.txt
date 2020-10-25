@@ -150,6 +150,8 @@ elseif(SFML_OS_MACOSX)
     set(DEFAULT_INSTALL_MISC_DIR /usr/local/share/SFML)
 elseif(SFML_OS_ANDROID)
     set(DEFAULT_INSTALL_MISC_DIR ${CMAKE_ANDROID_NDK}/sources/third_party/sfml)
+elseif(SFML_OS_HAIKU)
+    set(DEFAULT_INSTALL_MISC_DIR data/SFML)
 endif()
 
 # force building sfml-window, if sfml-graphics module is built

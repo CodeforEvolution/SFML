@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2021 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2020 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -25,64 +25,74 @@
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
+#include <SFML/System/Haiku/ThreadImpl.hpp>
 #include <SFML/System/Thread.hpp>
-
-
-#if defined(SFML_SYSTEM_WINDOWS)
-    #include <SFML/System/Win32/ThreadImpl.hpp>
-#elif defined(SFML_SYSTEM_HAIKU)
-    #include <SFML/System/Haiku/ThreadImpl.hpp>
-#else
-    #include <SFML/System/Unix/ThreadImpl.hpp>
-#endif
-
+#include <cassert>
+#include <iostream>
 
 namespace sf
 {
-////////////////////////////////////////////////////////////
-Thread::~Thread()
+namespace priv
 {
-    wait();
-    delete m_entryPoint;
-}
-
-
 ////////////////////////////////////////////////////////////
-void Thread::launch()
+ThreadImpl::ThreadImpl(Thread* owner) :
+m_isActive(true)
 {
-    wait();
-    m_impl = new priv::ThreadImpl(this);
-}
+    m_thread = spawn_thread(&ThreadImpl::entryPoint, "SFML thread", B_NORMAL_PRIORITY, owner);
 
+    if (m_thread < B_NO_ERROR) {
+        m_isActive = false;
+        std::cerr << "Failed to create thread" << std::endl;
+        return;
+    }
 
-////////////////////////////////////////////////////////////
-void Thread::wait()
-{
-    if (m_impl)
-    {
-        m_impl->wait();
-        delete m_impl;
-        m_impl = NULL;
+    if (resume_thread(m_thread) == B_OK) {
+        m_isActive = true;
+    } else {
+        m_isActive = false;
+        std::cerr << "Failed to start thread" << std::endl;
     }
 }
 
 
 ////////////////////////////////////////////////////////////
-void Thread::terminate()
+void ThreadImpl::wait()
 {
-    if (m_impl)
+    if (m_isActive)
     {
-        m_impl->terminate();
-        delete m_impl;
-        m_impl = NULL;
+        // A thread cannot wait for itself!
+        assert(find_thread(NULL) != m_thread);
+
+        wait_for_thread(m_thread, NULL);
     }
 }
 
 
 ////////////////////////////////////////////////////////////
-void Thread::run()
+void ThreadImpl::terminate()
 {
-    m_entryPoint->run();
+    // Haiku has "pthread_cancel", though not an equivalent for its native
+    // threading API...huh...
+    if (m_isActive)
+    {
+        // Don't do this at home kids!
+        kill_thread(m_thread);
+    }
 }
+
+
+////////////////////////////////////////////////////////////
+status_t ThreadImpl::entryPoint(void* userData)
+{
+    // The Thread instance is stored in the user data
+    Thread* owner = static_cast<Thread*>(userData);
+
+    // Forward to the owner
+    owner->run();
+
+    return B_NO_ERROR;
+}
+
+} // namespace priv
 
 } // namespace sf

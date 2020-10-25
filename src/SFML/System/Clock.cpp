@@ -29,6 +29,8 @@
 
 #if defined(SFML_SYSTEM_WINDOWS)
     #include <SFML/System/Win32/ClockImpl.hpp>
+#elif defined(SFML_SYSTEM_HAIKU)
+    #include <SFML/System/Haiku/ClockImpl.hpp>
 #else
     #include <SFML/System/Unix/ClockImpl.hpp>
 #endif

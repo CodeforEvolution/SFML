@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2021 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2020 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -25,24 +25,48 @@
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
-#include <SFML/System/Sleep.hpp>
-
-#if defined(SFML_SYSTEM_WINDOWS)
-    #include <SFML/System/Win32/SleepImpl.hpp>
-#elif defined(SFML_SYSTEM_HAIKU)
-    #include <SFML/System/Haiku/SleepImpl.hpp>
-#else
-    #include <SFML/System/Unix/SleepImpl.hpp>
-#endif
-
+#include <SFML/System/Haiku/ThreadLocalImpl.hpp>
+#include <iostream>
 
 namespace sf
 {
-////////////////////////////////////////////////////////////
-void sleep(Time duration)
+namespace priv
 {
-    if (duration >= Time::Zero)
-        priv::sleepImpl(duration);
+////////////////////////////////////////////////////////////
+ThreadLocalImpl::ThreadLocalImpl() :
+m_slotIndex(-1)
+{
+    m_slotIndex = tls_allocate();
+
+    // Each process on Haiku can allocate a maximum of 64 TLS variables
+    if (m_slotIndex < B_NO_ERROR) {
+        std::cerr << "Couldn't allocate a tls slot, no more slots available" << std::endl;
+    }
 }
+
+
+////////////////////////////////////////////////////////////
+ThreadLocalImpl::~ThreadLocalImpl()
+{
+    // So, uh, there's no way to free a TLS slot in Haiku.
+    // Because of this, please, be careful when using the all powerful
+    // ThreadLocal object!
+}
+
+
+////////////////////////////////////////////////////////////
+void ThreadLocalImpl::setValue(void* value)
+{
+    tls_set(m_slotIndex, value);
+}
+
+
+////////////////////////////////////////////////////////////
+void* ThreadLocalImpl::getValue() const
+{
+    return tls_get(m_slotIndex);
+}
+
+} // namespace priv
 
 } // namespace sf

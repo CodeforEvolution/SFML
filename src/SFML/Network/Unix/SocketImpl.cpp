@@ -45,7 +45,7 @@ sockaddr_in SocketImpl::createAddress(Uint32 address, unsigned short port)
     addr.sin_family      = AF_INET;
     addr.sin_port        = htons(port);
 
-#if defined(SFML_SYSTEM_MACOS)
+#if defined(SFML_SYSTEM_MACOS) || defined(SFML_SYSTEM_HAIKU)
     addr.sin_len = sizeof(addr);
 #endif
 

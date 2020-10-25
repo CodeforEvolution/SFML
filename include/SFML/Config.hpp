@@ -68,6 +68,11 @@
 
     #endif
 
+#elif defined(__HAIKU__)
+
+    // Haiku
+    #define SFML_SYSTEM_HAIKU
+
 #elif defined(__unix__)
 
     // UNIX system, see which one it is

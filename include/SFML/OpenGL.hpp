@@ -45,7 +45,7 @@
 
     #include <GL/gl.h>
 
-#elif defined(SFML_SYSTEM_LINUX) || defined(SFML_SYSTEM_FREEBSD) || defined(SFML_SYSTEM_OPENBSD) || defined(SFML_SYSTEM_NETBSD)
+#elif defined(SFML_SYSTEM_LINUX) || defined(SFML_SYSTEM_FREEBSD) || defined(SFML_SYSTEM_OPENBSD) || defined(SFML_SYSTEM_NETBSD) || defined(SFML_SYSTEM_HAIKU)
 
     #if defined(SFML_OPENGL_ES)
         #include <GLES/gl.h>
@@ -67,7 +67,7 @@
 
     #include <GLES/gl.h>
     #include <GLES/glext.h>
-    
+
     // We're not using OpenGL ES 2+ yet, but we can use the sRGB extension
     #include <GLES2/gl2platform.h>
     #include <GLES2/gl2ext.h>

@@ -29,6 +29,8 @@
 
 #if defined(SFML_SYSTEM_WINDOWS)
     #include <SFML/System/Win32/MutexImpl.hpp>
+#elif defined(SFML_SYSTEM_HAIKU)
+    #include <SFML/System/Haiku/MutexImpl.hpp>
 #else
     #include <SFML/System/Unix/MutexImpl.hpp>
 #endif

@@ -29,6 +29,8 @@
 
 #if defined(SFML_SYSTEM_WINDOWS)
     #include <SFML/System/Win32/ThreadLocalImpl.hpp>
+#elif defined(SFML_SYSTEM_HAIKU)
+    #include <SFML/System/Haiku/ThreadLocalImpl.hpp>
 #else
     #include <SFML/System/Unix/ThreadLocalImpl.hpp>
 #endif
